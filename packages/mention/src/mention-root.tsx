@@ -248,6 +248,21 @@ const MentionRoot = React.forwardRef<RootElement, MentionRootProps>(
       },
     });
 
+    // Automatically clear mentions when input value becomes empty
+    React.useEffect(() => {
+      if (inputValue === "" && mentions.length > 0) {
+        // Clear all mention-related state
+        setMentions([]);
+        setValue([]);
+        setVirtualAnchor(null);
+        setHighlightedItem(null);
+        setOpen(false);
+        // Clear filter search
+        filterStore.search = "";
+      }
+    }, [inputValue, mentions.length, setValue, setOpen, filterStore]);
+
+
     const getEnabledItems = React.useCallback(() => {
       return getItems().filter((item) => !item.disabled);
     }, [getItems]);

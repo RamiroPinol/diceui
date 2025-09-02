@@ -983,6 +983,7 @@ const MentionInput = React.forwardRef<InputElement, MentionInputProps>(
           readOnly={context.readonly}
           dir={context.dir}
           {...props}
+          value={context.inputValue}
           ref={composedRef}
           onBeforeInput={composeEventHandlers(
             props.onBeforeInput,
