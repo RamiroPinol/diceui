@@ -19,6 +19,7 @@ import * as React from "react";
 import type { ContentElement } from "./mention-content";
 import type { InputElement } from "./mention-input";
 import type { ItemElement } from "./mention-item";
+import { removeAndUpdateMentions } from "./utils";
 
 function getDataState(open: boolean) {
   return open ? "open" : "closed";
@@ -262,7 +263,6 @@ const MentionRoot = React.forwardRef<RootElement, MentionRootProps>(
       }
     }, [inputValue, mentions.length, setValue, setOpen, filterStore]);
 
-
     const getEnabledItems = React.useCallback(() => {
       return getItems().filter((item) => !item.disabled);
     }, [getItems]);
@@ -327,7 +327,7 @@ const MentionRoot = React.forwardRef<RootElement, MentionRootProps>(
               return {
                 ...mention,
                 start: mention.start + mentionText.length,
-                end: mention.end + mentionText.length + 1,
+                end: mention.end + mentionText.length - 1,
               };
             }
 
@@ -353,13 +353,11 @@ const MentionRoot = React.forwardRef<RootElement, MentionRootProps>(
     );
 
     const onMentionsRemove = React.useCallback(
-      (mentionsToRemove: Mention[]) => {
-        setMentions((prev) =>
-          prev.filter(
-            (mention) =>
-              !mentionsToRemove.some((m) => m.value === mention.value),
-          ),
-        );
+      (mentionsToRemove: Mention[], caller?: string) => {
+        setMentions((prev) => {
+          const updatedMentions = removeAndUpdateMentions(prev, mentionsToRemove);
+          return updatedMentions;
+        });
       },
       [],
     );
