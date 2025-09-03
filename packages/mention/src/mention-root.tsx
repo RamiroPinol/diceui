@@ -327,7 +327,7 @@ const MentionRoot = React.forwardRef<RootElement, MentionRootProps>(
               return {
                 ...mention,
                 start: mention.start + mentionText.length,
-                end: mention.end + mentionText.length - 1,
+                end: mention.end + mentionText.length,
               };
             }
 

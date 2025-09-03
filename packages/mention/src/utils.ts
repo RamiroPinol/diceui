@@ -10,7 +10,7 @@ export function removeAndUpdateMentions(mentions: Mention[], mentionsToRemove: M
     
     mentionsToRemove.forEach(removed => {
       if (removed.end <= mention.start) {
-        newStart -= (removed.end - removed.start + 1);
+        newStart -= (removed.end - removed.start);
         newEnd -= (removed.end - removed.start);
       }
     });
