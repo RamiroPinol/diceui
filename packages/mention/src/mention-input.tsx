@@ -251,16 +251,28 @@ const MentionInput = React.forwardRef<InputElement, MentionInputProps>(
         if (insertedLength !== 0) {
           context.onMentionsChange((prev) =>
             prev.map((mention) => {
-              // Only update positions for mentions that come after the cursor
-              if (
-                mention.start >=
-                cursorPosition - (insertedLength > 0 ? insertedLength : 0)
-              ) {
-                return {
-                  ...mention,
-                  start: mention.start + insertedLength,
-                  end: mention.end + insertedLength,
-                };
+              // For insertion: mentions at or after the insertion point need to shift right
+              // For deletion: mentions after the deletion point need to shift left
+              if (insertedLength > 0) {
+                // Insertion: check if mention is at or after where text was inserted
+                const insertionPoint = cursorPosition - insertedLength;
+                if (mention.start >= insertionPoint) {
+                  return {
+                    ...mention,
+                    start: mention.start + insertedLength,
+                    end: mention.end + insertedLength,
+                  };
+                }
+              } else {
+                // Deletion: check if mention is after where text was deleted
+                // (cursorPosition is already at the deletion point after deletion)
+                if (mention.start > cursorPosition) {
+                  return {
+                    ...mention,
+                    start: mention.start + insertedLength,
+                    end: mention.end + insertedLength,
+                  };
+                }
               }
               return mention;
             }),
@@ -524,6 +536,22 @@ const MentionInput = React.forwardRef<InputElement, MentionInputProps>(
 
               input.value = newValue;
               context.onInputValueChange?.(newValue);
+              
+              // Update positions of mentions that come after the removed space
+              context.onMentionsChange((prev) =>
+                prev.map((mention) => {
+                  // Only update mentions that come after the removed space
+                  if (mention.start > mentionBeforeCursor.end) {
+                    return {
+                      ...mention,
+                      start: mention.start - 1,
+                      end: mention.end - 1,
+                    };
+                  }
+                  return mention;
+                }),
+              );
+              
               input.setSelectionRange(
                 mentionBeforeCursor.end,
                 mentionBeforeCursor.end,
